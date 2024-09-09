@@ -23,7 +23,7 @@ namespace GameModule
         private List<GamePlayer> gamePlayers = new List<GamePlayer>(); //게임 참여 플레이어
         private List<GamePlayer> playerOrder = new List<GamePlayer>(); //플레이어 턴 순서
         private List<GameObject> gameObjects = new List<GameObject>(); //모든 오브젝트 풀
-        private Stack<GameEffect> gameStack = new Stack<GameEffect>(); // 카드 및 효과 처리 전 대기장소
+        private Queue<GameEffect> gameStack = new Queue<GameEffect>(); // 카드 및 효과 처리 전 대기장소
 
         //외부용
         public List<Sequence> Sequences { get {  return sequences.ToList(); } }
