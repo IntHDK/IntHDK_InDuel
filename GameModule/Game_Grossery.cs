@@ -28,7 +28,7 @@ namespace GameModule
             {
                 //덱에 카드가 없음
                 //패배 효과를 대기 큐에
-                gameStack.Enqueue(new GameEffect()
+                GameResolvingEffect.Enqueue(new GameEffect()
                 {
                     ID = Guid.NewGuid(),
                     EffectCode = MetaEffectCode.GAMERULE_GAMELOSS_DRAWEMPTYDECK,
@@ -49,6 +49,21 @@ namespace GameModule
                     }
                 }
             }
+        }
+
+        private void nextPhase()
+        {
+            if (TurnOwner == null)
+            {
+                //첫 턴과 첫 페이즈
+                TurnOwner = PlayerOrder.First();
+                Turn = 1;
+                TurnPhase = TurnPhase.StartPhase;
+            }
+        }
+        private void makePhaseBeginningTrigger(GamePlayer turnOwner, TurnPhase turnPhase)
+        {
+            //turnOwner의 턴, turnPhase가 시작할 때 발동하는 트리거
         }
     }
 }

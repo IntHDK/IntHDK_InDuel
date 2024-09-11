@@ -15,33 +15,28 @@ namespace GameModule
     public partial class Game
     {
         //메타정보
-        private Dictionary<MetaGameCardCode, MetaGameCardInfo> metaGameCardInfos;
+        public Dictionary<string, MetaGameCardInfo> MetaGameCardInfos { get; set; }
 
         private Random randomizer = new();
-        private List<Sequence> sequences = new List<Sequence>(); //진행중, 진행된, 또는 진행 예정의 시퀀스 리스트
-        private int sequence_index = 0;
-        private List<GamePlayer> gamePlayers = new List<GamePlayer>(); //게임 참여 플레이어
-        private List<GamePlayer> playerOrder = new List<GamePlayer>(); //플레이어 턴 순서
-        private List<GameObject> gameObjects = new List<GameObject>(); //모든 오브젝트 풀
-        private Queue<GameEffect> gameStack = new Queue<GameEffect>(); // 카드 및 효과 처리 전 대기장소
-
-        //외부용
-        public List<Sequence> Sequences { get {  return sequences.ToList(); } }
-        public int SequenceIndex { get { return sequence_index; } }
-        public List<GamePlayer> GamePlayers { get { return gamePlayers.ToList(); } }
-        public List<GamePlayer> PlayerOrder { get { return playerOrder.ToList(); } }
+        public List<Sequence> Sequences { get; set; } = new List<Sequence>(); //진행중, 진행된, 또는 진행 예정의 시퀀스 리스트
+        public int Sequence_Index { get; set; } = 0;
+        public List<GamePlayer> GamePlayers { get; set; } = new List<GamePlayer>(); //게임 참여 플레이어
+        public List<GamePlayer> PlayerOrder { get; set; } = new List<GamePlayer>(); //플레이어 턴 순서
+        public Queue<GameEffect> GameResolvingEffect { get; set; } = new Queue<GameEffect>(); // 카드 및 효과 처리 전 대기장소
 
         //턴
+        public GamePlayer? TurnOwner { get; set; } = null;
+        public int Turn = 0;
+        public TurnPhase TurnPhase { get; set; } = TurnPhase.None;
 
-
-        public Game(Dictionary<MetaGameCardCode, MetaGameCardInfo> meta, List<GamePlayerInitInfo> Players)
+        public Game(Dictionary<string, MetaGameCardInfo> meta, List<GamePlayerInitInfo> Players)
         {
-            this.metaGameCardInfos = meta.ToDictionary();
+            this.MetaGameCardInfos = meta.ToDictionary();
             //게임 플레이어 등록
-            gamePlayers = [];
+            GamePlayers = [];
             foreach (var pinit in Players)
             {
-                gamePlayers.Add(new GamePlayer()
+                GamePlayers.Add(new GamePlayer()
                 {
                     ID = Guid.NewGuid(),
                     StartingDeck = [.. pinit.StartingDeck]
@@ -49,7 +44,7 @@ namespace GameModule
             }
 
             //플레이어별로 존 만들어주기
-            foreach (var player in gamePlayers)
+            foreach (var player in GamePlayers)
             {
                 var handzone = new GameZone()
                 {
@@ -74,7 +69,7 @@ namespace GameModule
                 foreach(var deckcardinfo in player.StartingDeck)
                 {
                     //메타에 있는것만 추가
-                    if (metaGameCardInfos.TryGetValue(deckcardinfo.CardCode, out var cardinfo))
+                    if (MetaGameCardInfos.TryGetValue(deckcardinfo.CardCode, out var cardinfo))
                     {
                         if (cardinfo.Type == GameCardType.HQ)
                         {
@@ -87,7 +82,6 @@ namespace GameModule
                                 Owner = battlefield,
                                 CardMetaInfo = cardinfo,
                             };
-                            gameObjects.Add(hq);
                             battlefield.GameObjects.Add(hq);
                         }
                         else
@@ -101,7 +95,6 @@ namespace GameModule
                                 CardMetaInfo = cardinfo,
                                 PlayersWhoViewAsFaceUp = []
                             };
-                            gameObjects.Add(addingcard);
                             deck.GameObjects.Add(addingcard);
                         }
                     }
@@ -110,11 +103,6 @@ namespace GameModule
                 //덱 셔플
                 shuffleZoneCardObjectOrder(deck);
 
-                gameObjects.Add(battlefield);
-                gameObjects.Add(graveyard);
-                gameObjects.Add(deck);
-                gameObjects.Add(handzone);
-
                 player.Hand = handzone;
                 player.Battlefield = battlefield;
                 player.Graveyard = graveyard;
@@ -122,7 +110,7 @@ namespace GameModule
             }
 
             //첫 시퀀스
-            sequences =
+            Sequences =
             [
                 new Sequence()
                 {

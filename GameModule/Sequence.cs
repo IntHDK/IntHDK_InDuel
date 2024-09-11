@@ -26,6 +26,7 @@ namespace GameModule
         None,
         DetermineTurnOrder,
         MakeFirstHand,
+        MakeFirstTurn,
         End
     }
     public class SequenceFulfillmentDescriber

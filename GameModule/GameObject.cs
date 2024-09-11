@@ -86,12 +86,12 @@ namespace GameModule
         public Guid ID { get; set; }
         public GameObject? Owner { get; set; }
 
-        public MetaGameCardCode CardCode { get; set; }
+        public string CardCode { get; set; }
         public MetaGameCardInfo CardMetaInfo { get; set; }
         public bool IsFaceDown { get; set; } // 뒷면 상태. 덱, 패에 있는것도 뒷면으로 간주 (특정 플레이어 또는 전체 플레이어 입장에서는 보여서는 안됨)
         public List<GamePlayer> PlayersWhoViewAsFaceUp { get; set; } // 어떤 플레이어가 이 오브젝트의 세부 정체를 확인 가능한지 (FaceDown 상태에서 정체를 알 수 있는 플레이어)
 
-        public MetaGameCardFunctionallyName Name
+        public string Name
         {
             get
             {
@@ -99,7 +99,7 @@ namespace GameModule
                 {
                     return CardMetaInfo.CardFunctionallyCode;
                 }
-                return MetaGameCardFunctionallyName.None;
+                return "";
             }
         }
         public int Level
@@ -148,7 +148,7 @@ namespace GameModule
     }
     public class DeckCardInfoRecord
     {
-        public MetaGameCardCode CardCode { get; set; }
+        public string CardCode { get; set; }
         public int Quantity { get; set; }
     }
 

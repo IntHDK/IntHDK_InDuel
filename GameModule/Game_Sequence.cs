@@ -12,21 +12,21 @@ namespace GameModule
         {
             get
             {
-                if (sequences.Count != 0)
+                if (Sequences.Count != 0)
                 {
-                    return sequences[sequence_index];
+                    return Sequences[Sequence_Index];
                 }
-                return sequences.FirstOrDefault();
+                return Sequences.FirstOrDefault();
             }
         }
         private void AddSequenceToFront(List<Sequence> sequences)
         {
-            this.sequences = [.. sequences, .. this.sequences];
+            this.Sequences = [.. sequences, .. this.Sequences];
         }
         private void AddSequence(Sequence sequence)
         {
-            sequence_index++;
-            sequences.Add(sequence);
+            Sequence_Index++;
+            Sequences.Add(sequence);
         }
         public void Next()
         {
@@ -39,13 +39,13 @@ namespace GameModule
                         //파라메터 필요없음
                         curseq.IsDone = true;
                         //랜덤 플레이어 순위 셔플
-                        playerOrder = gamePlayers.OrderBy(_ => randomizer.Next(0, gamePlayers.Count() - 1)).ToList();
+                        PlayerOrder = GamePlayers.OrderBy(_ => randomizer.Next(0, GamePlayers.Count() - 1)).ToList();
                         curseq.SequenceResultDescriber = new SequenceResultDecriber()
                         {
                             SequenceResultActions = [
                                 new SequenceResultAction(){
                                         SequenceResultActionType = SequenceResultActionType.MakeGlobalValue,
-                                        ResultParameters = {{"order", playerOrder.ToList() }}
+                                        ResultParameters = {{"order", PlayerOrder.ToList() }}
                                     }
                                 ]
                         };
@@ -66,7 +66,20 @@ namespace GameModule
                     case SequenceType.MakeFirstHand:
                         //파라메터 필요없음
                         curseq.IsDone = true;
-
+                        foreach(var player in GamePlayers)
+                        {
+                            drawCards(player, MetaConstants.INITIAL_HAND_SIZE);
+                        }
+                        AddSequence(new Sequence()
+                        {
+                            ID = Guid.NewGuid(),
+                            IsDone = false,
+                            SequenceFulfillmentDescriber = new SequenceFulfillmentDescriber()
+                            {
+                                Parameters = []
+                            },
+                            Type = SequenceType.MakeFirstTurn,
+                        });
                         break;
 
                     default:
